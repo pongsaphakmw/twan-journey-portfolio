@@ -32,7 +32,7 @@ export default function RootLayout({
         <TopNav />
 
         {/* Main Canvas Area - 65% height */}
-        <main className="h-[65%] w-full overflow-auto relative border-b border-slate-700">
+        <main className="h-[65%] w-full overflow-auto relative border-b border-slate-700 pt-14">
           {children}
         </main>
 
