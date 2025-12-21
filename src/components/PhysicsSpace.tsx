@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Matter from 'matter-js';
 import { FileCode, FileJson, FileText, FileType2 } from 'lucide-react';
 
@@ -8,7 +9,7 @@ import { FileCode, FileJson, FileText, FileType2 } from 'lucide-react';
 const NODES_CONFIG = [
     { id: 'about', label: 'ABOUT_ME.MD', subLabel: 'My Journey', icon: FileText, color: 'text-blue-400', width: 220, height: 100 },
     { id: 'projects', label: 'PROJECTS.JSON', subLabel: 'Recent Work', icon: FileJson, color: 'text-yellow-400', width: 220, height: 100 },
-    { id: 'stack', label: 'STACK.YML', subLabel: 'Skills & Tools', icon: FileCode, color: 'text-purple-400', width: 200, height: 100 },
+    { id: 'experiences', label: 'EXPERIENCES.MD', subLabel: 'Skills & Tools', icon: FileCode, color: 'text-purple-400', width: 200, height: 100 },
     { id: 'contact', label: 'CONTACT.TXT', subLabel: 'Get in Touch', icon: FileType2, color: 'text-green-400', width: 200, height: 100 },
 ];
 
@@ -23,6 +24,7 @@ export default function PhysicsSpace() {
     const sceneRef = useRef<HTMLDivElement>(null);
     const engineRef = useRef<Matter.Engine | null>(null);
     const [nodes, setNodes] = useState<PhysicsNodeState[]>([]);
+    const router = useRouter();
 
     useEffect(() => {
         if (!sceneRef.current) return;
@@ -38,47 +40,80 @@ export default function PhysicsSpace() {
             options: {
                 width: sceneRef.current.clientWidth,
                 height: sceneRef.current.clientHeight,
-                wireframes: false, // Set to true to debug physics bodies
-                background: 'transparent', // We only want the physics, visual is via React
+                wireframes: false,
+                background: 'transparent',
                 showAngleIndicator: false,
             },
         });
 
         // 2. Create Bodies (Nodes)
-        // Randomize initial positions slightly within the center area
         const centerX = sceneRef.current.clientWidth / 2;
         const centerY = sceneRef.current.clientHeight / 2;
 
-        const bodies = NODES_CONFIG.map((config, index) => {
+        const bodies = NODES_CONFIG.map((config) => {
             const x = centerX + (Math.random() - 0.5) * 200;
-            const y = centerY + (Math.random() - 0.5) * 100;
+            const y = centerY + (Math.random() - 0.5) * 200;
 
-            return Matter.Bodies.rectangle(x, y, config.width, config.height, {
-                label: config.id, // Use label to map back to config
-                chamfer: { radius: 10 }, // Rounded corners for physics
-                restitution: 0.9, // Bouncy
-                frictionAir: 0.02, // Slow down a bit in "space"
+            const body = Matter.Bodies.rectangle(x, y, config.width, config.height, {
+                label: config.id,
+                chamfer: { radius: 10 },
+                restitution: 0.9,
+                frictionAir: 0.001, // Reduced friction for better floating
                 density: 0.001,
             });
+
+            // Add initial random velocity
+            Matter.Body.setVelocity(body, {
+                x: (Math.random() - 0.5) * 2,
+                y: (Math.random() - 0.5) * 2,
+            });
+
+            // Add initial random rotation
+            Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.02);
+
+            return body;
         });
 
-        // 3. Create Walls
-        const wallOptions = { isStatic: true, render: { visible: false } };
-        const width = sceneRef.current.clientWidth;
-        const height = sceneRef.current.clientHeight;
-        const wallThick = 60;
+        // 3. Create Walls (and handle resize)
+        let walls: Matter.Body[] = [];
+        const createWalls = () => {
+            // Remove existing walls if needed
+            if (walls.length > 0) {
+                Matter.World.remove(engine.world, walls);
+            }
+            const width = sceneRef.current?.clientWidth || window.innerWidth;
+            const height = sceneRef.current?.clientHeight || window.innerHeight;
+            const wallThick = 60;
+            const wallOptions = { isStatic: true, render: { visible: false } };
 
-        const walls = [
-            Matter.Bodies.rectangle(width / 2, -wallThick / 2, width, wallThick, wallOptions), // Top
-            Matter.Bodies.rectangle(width / 2, height + wallThick / 2, width, wallThick, wallOptions), // Bottom
-            Matter.Bodies.rectangle(width + wallThick / 2, height / 2, wallThick, height, wallOptions), // Right
-            Matter.Bodies.rectangle(-wallThick / 2, height / 2, wallThick, height, wallOptions), // Left
-        ];
+            walls = [
+                Matter.Bodies.rectangle(width / 2, -wallThick / 2, width, wallThick, wallOptions), // Top
+                Matter.Bodies.rectangle(width / 2, height + wallThick / 2, width, wallThick, wallOptions), // Bottom
+                Matter.Bodies.rectangle(width + wallThick / 2, height / 2, wallThick, height, wallOptions), // Right
+                Matter.Bodies.rectangle(-wallThick / 2, height / 2, wallThick, height, wallOptions), // Left
+            ];
 
-        Matter.World.add(engine.world, [...bodies, ...walls]);
+            Matter.World.add(engine.world, walls);
+        };
+
+        createWalls();
+        Matter.World.add(engine.world, bodies);
+
+        // Resize Handler
+        const handleResize = () => {
+            if (!sceneRef.current) return;
+            // Update canvas size
+            render.canvas.width = sceneRef.current.clientWidth;
+            render.canvas.height = sceneRef.current.clientHeight;
+            // Re-create walls
+            createWalls();
+        };
+        window.addEventListener('resize', handleResize);
+
 
         // 4. Mouse Interaction
-        const mouse = Matter.Mouse.create(render.canvas);
+        // Attach to the container (sceneRef.current) to ensure events are captured even over React nodes
+        const mouse = Matter.Mouse.create(sceneRef.current);
         const mouseConstraint = Matter.MouseConstraint.create(engine, {
             mouse: mouse,
             constraint: {
@@ -94,11 +129,23 @@ export default function PhysicsSpace() {
         // 5. Run the engine
         const runner = Matter.Runner.create();
         Matter.Runner.run(runner, engine);
-        // Matter.Render.run(render); // Optional: Uncomment to see the physics debug view
+        // Matter.Render.run(render); 
+
+        // Add gentle continuous force (floating effect)
+        Matter.Events.on(engine, 'beforeUpdate', () => {
+            bodies.forEach(body => {
+                // Apply tiny random force
+                Matter.Body.applyForce(body, body.position, {
+                    x: (Math.random() - 0.5) * 0.00001,
+                    y: (Math.random() - 0.5) * 0.00001
+                });
+            });
+        });
 
         // 6. Sync Loop (Physics -> React State)
         let animationFrameId: number;
         const updateReactState = () => {
+            // Only update if engine exists
             const newNodesState = bodies.map((body) => ({
                 id: body.label,
                 x: body.position.x,
@@ -112,12 +159,17 @@ export default function PhysicsSpace() {
 
         // Cleanup
         return () => {
+            window.removeEventListener('resize', handleResize);
             Matter.Render.stop(render);
             Matter.Runner.stop(runner);
             cancelAnimationFrame(animationFrameId);
             if (engineRef.current) {
                 Matter.World.clear(engineRef.current.world, false);
                 Matter.Engine.clear(engineRef.current);
+            }
+            // Be careful not to remove the canvas if we want to recycle, but here we rebuild.
+            if (render.canvas && sceneRef.current) {
+                render.canvas.remove();
             }
         };
     }, []);
@@ -145,6 +197,18 @@ export default function PhysicsSpace() {
                 return (
                     <div
                         key={config.id}
+                        onPointerDown={(e) => {
+                            e.currentTarget.dataset.startX = e.clientX.toString();
+                            e.currentTarget.dataset.startY = e.clientY.toString();
+                        }}
+                        onPointerUp={(e) => {
+                            const startX = parseFloat(e.currentTarget.dataset.startX || '0');
+                            const startY = parseFloat(e.currentTarget.dataset.startY || '0');
+                            const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
+                            if (dist < 5) {
+                                router.push('/' + config.id);
+                            }
+                        }}
                         className="absolute flex flex-col items-center justify-center backdrop-blur-md bg-slate-900/40 border border-slate-700/50 shadow-lg cursor-grab active:cursor-grabbing hover:border-slate-500/80 transition-colors select-none group"
                         style={{
                             width: config.width,
@@ -157,14 +221,14 @@ export default function PhysicsSpace() {
                         }}
                     >
                         {/* Header / Icon */}
-                        <div className="flex items-center space-x-2 mb-1">
+                        <div className="flex items-center space-x-2 mb-1 pointer-events-none">
                             <config.icon size={20} className={config.color} />
                             <span className="font-mono text-sm text-slate-200 font-bold group-hover:text-white transition-colors">
                                 {config.label}
                             </span>
                         </div>
                         {/* Subtitle */}
-                        <span className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold group-hover:text-slate-400">
+                        <span className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold group-hover:text-slate-400 pointer-events-none">
                             {config.subLabel}
                         </span>
 
