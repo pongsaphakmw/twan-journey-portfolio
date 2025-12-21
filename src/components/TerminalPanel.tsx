@@ -12,9 +12,9 @@ const TerminalPanel = () => {
     ]);
 
     const quickChips = [
-        { label: '👋 Who are you?', command: 'about' },
-        { label: '🚀 Show Projects', command: 'work' },
-        { label: '📧 How to contact?', command: 'contact' },
+        { label: 'Who are you?', command: 'about' },
+        { label: 'Show Projects', command: 'work' },
+        { label: 'How to contact?', command: 'contact' },
     ];
 
     const executeCommand = (cmd: string) => {

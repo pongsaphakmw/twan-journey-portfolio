@@ -1,0 +1,5 @@
+services:
+  app:
+    image: ghcr.io/pongsaphakmw/twan-journey-portfolio:latest
+    ports:
+      - "80:3000"
