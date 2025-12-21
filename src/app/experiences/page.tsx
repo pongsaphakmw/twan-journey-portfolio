@@ -1,6 +1,3 @@
-
-import React from 'react';
-
 export default function ExperiencesPage() {
     return (
         <div className="p-8 text-slate-200">

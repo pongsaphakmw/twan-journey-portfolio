@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Matter from 'matter-js';
 import { FileCode, FileJson, FileText, FileType2 } from 'lucide-react';
@@ -27,7 +27,8 @@ export default function PhysicsSpace() {
     const router = useRouter();
 
     useEffect(() => {
-        if (!sceneRef.current) return;
+        const sceneElement = sceneRef.current;
+        if (!sceneElement) return;
 
         // 1. Setup Matter.js Engine
         const engine = Matter.Engine.create();
@@ -35,11 +36,11 @@ export default function PhysicsSpace() {
         engineRef.current = engine;
 
         const render = Matter.Render.create({
-            element: sceneRef.current,
+            element: sceneElement,
             engine: engine,
             options: {
-                width: sceneRef.current.clientWidth,
-                height: sceneRef.current.clientHeight,
+                width: sceneElement.clientWidth,
+                height: sceneElement.clientHeight,
                 wireframes: false,
                 background: 'transparent',
                 showAngleIndicator: false,
@@ -47,8 +48,8 @@ export default function PhysicsSpace() {
         });
 
         // 2. Create Bodies (Nodes)
-        const centerX = sceneRef.current.clientWidth / 2;
-        const centerY = sceneRef.current.clientHeight / 2;
+        const centerX = sceneElement.clientWidth / 2;
+        const centerY = sceneElement.clientHeight / 2;
 
         const bodies = NODES_CONFIG.map((config) => {
             const x = centerX + (Math.random() - 0.5) * 200;
@@ -81,8 +82,8 @@ export default function PhysicsSpace() {
             if (walls.length > 0) {
                 Matter.World.remove(engine.world, walls);
             }
-            const width = sceneRef.current?.clientWidth || window.innerWidth;
-            const height = sceneRef.current?.clientHeight || window.innerHeight;
+            const width = sceneElement.clientWidth || window.innerWidth;
+            const height = sceneElement.clientHeight || window.innerHeight;
             const wallThick = 60;
             const wallOptions = { isStatic: true, render: { visible: false } };
 
@@ -101,10 +102,9 @@ export default function PhysicsSpace() {
 
         // Resize Handler
         const handleResize = () => {
-            if (!sceneRef.current) return;
             // Update canvas size
-            render.canvas.width = sceneRef.current.clientWidth;
-            render.canvas.height = sceneRef.current.clientHeight;
+            render.canvas.width = sceneElement.clientWidth;
+            render.canvas.height = sceneElement.clientHeight;
             // Re-create walls
             createWalls();
         };
@@ -113,7 +113,7 @@ export default function PhysicsSpace() {
 
         // 4. Mouse Interaction
         // Attach to the container (sceneRef.current) to ensure events are captured even over React nodes
-        const mouse = Matter.Mouse.create(sceneRef.current);
+        const mouse = Matter.Mouse.create(sceneElement);
         const mouseConstraint = Matter.MouseConstraint.create(engine, {
             mouse: mouse,
             constraint: {
@@ -168,7 +168,7 @@ export default function PhysicsSpace() {
                 Matter.Engine.clear(engineRef.current);
             }
             // Be careful not to remove the canvas if we want to recycle, but here we rebuild.
-            if (render.canvas && sceneRef.current) {
+            if (render.canvas && sceneElement) {
                 render.canvas.remove();
             }
         };
