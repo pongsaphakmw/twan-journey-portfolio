@@ -185,7 +185,7 @@ export default function PhysicsSpace() {
             {/* Instructions / subtle background text */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
                 <div className="text-6xl font-black text-slate-500 tracking-tighter">
-                    ZERO GRAVITY
+                    ZERO GRAVITY ZONE
                 </div>
             </div>
 

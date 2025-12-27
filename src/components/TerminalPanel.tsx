@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { processCommand } from '@/utils/terminalCommand';
 
 const TerminalPanel = () => {
     const [activeTab, setActiveTab] = useState('TERMINAL');
@@ -10,6 +12,7 @@ const TerminalPanel = () => {
         '   [INFO] Environment loaded. Welcome to the interactive portfolio.',
         '',
     ]);
+    const router = useRouter();
 
     const quickChips = [
         { label: 'Who are you?', command: 'about' },
@@ -18,20 +21,19 @@ const TerminalPanel = () => {
     ];
 
     const executeCommand = (cmd: string) => {
+        // Always echo the command first
         setLogs((prev) => [...prev, `➜ visitor@portfolio:~$ ${cmd}`]);
 
-        if (cmd === 'help') {
-            setLogs((prev) => [...prev, 'Available commands: help, clear, about, work, contact']);
-        } else if (cmd === 'clear') {
+        const result = processCommand(cmd);
+
+        if (result.shouldClear) {
             setLogs([]);
-        } else if (cmd === 'about') {
-            setLogs((prev) => [...prev, '  Hello! I am a developer passionate about building great software.']);
-        } else if (cmd === 'work') {
-            setLogs((prev) => [...prev, '  Check out my projects at /work or type "projects" for a list.']);
-        } else if (cmd === 'contact') {
-            setLogs((prev) => [...prev, '  Reach me at: contact@example.com']);
-        } else if (cmd) {
-            setLogs((prev) => [...prev, `  Command not found: ${cmd}. Type "help" for available commands.`]);
+        } else if (result.output.length > 0) {
+            setLogs((prev) => [...prev, ...result.output]);
+        }
+
+        if (result.navigationPath) {
+            router.push(result.navigationPath);
         }
 
         setInput('');
@@ -54,8 +56,8 @@ const TerminalPanel = () => {
                         <li
                             key={tab}
                             className={`px-3 py-2 cursor-pointer uppercase text-xs font-medium tracking-wide transition-colors ${activeTab === tab
-                                    ? 'text-white border-b-2 border-orange-400 bg-[#0d1117]'
-                                    : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'
+                                ? 'text-white border-b-2 border-orange-400 bg-[#0d1117]'
+                                : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'
                                 }`}
                             onClick={() => setActiveTab(tab)}
                         >
