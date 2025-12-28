@@ -37,7 +37,7 @@ export const processCommand = (cmd: string): CommandResult => {
             return { output: ['Usage: cd <path> (e.g., cd /about)'] };
         }
         const path = args[0];
-        const validPaths = ['/about', '/projects', '/experiences', '/contact'];
+        const validPaths = ['/about', '/projects', '/experiences', '/contact', '/'];
 
         if (validPaths.includes(path)) {
             return {

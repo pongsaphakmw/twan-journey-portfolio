@@ -45,7 +45,7 @@ const TerminalPanel = () => {
         }
     };
 
-    const tabs = ['PROBLEMS', 'OUTPUT', 'DEBUG CONSOLE', 'TERMINAL', 'PORTS'];
+    const tabs = ['TERMINAL', 'CHAT'];
 
     return (
         <div className="flex flex-col h-full bg-[#0d1117] border-t border-slate-700 text-slate-300 font-mono text-sm">
