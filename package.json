@@ -10,9 +10,10 @@
     "test": "echo 'Mock Test Passed'"
   },
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.958.0",
     "lucide-react": "^0.556.0",
     "matter-js": "^0.20.0",
-    "next": "16.0.7",
+    "next": "^16.1.1",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
