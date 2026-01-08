@@ -40,7 +40,7 @@ export default function RootLayout({
         </main>
 
         {/* Terminal Panel Area - 35% height */}
-        <footer className="h-[35%] w-full">
+        <footer className="h-[35%] w-full relative z-50 bg-[#0d1117] border-t border-slate-700">
           <TerminalPanel />
         </footer>
       </body>

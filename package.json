@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.958.0",
+    "framer-motion": "^12.24.7",
+    "lenis": "^1.3.17",
     "lucide-react": "^0.556.0",
     "matter-js": "^0.20.0",
     "next": "^16.1.1",
