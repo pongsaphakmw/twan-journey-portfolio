@@ -75,52 +75,54 @@ const TerminalPanel = () => {
 
             {/* Body */}
             <div className="flex-1 overflow-hidden relative">
-                {activeTab === 'TERMINAL' ? (
-                    <div className="flex flex-col h-full">
-                        {/* Terminal Logs */}
-                        <div className="flex-1 p-4 overflow-y-auto font-mono bg-black/30">
-                            <div className="flex flex-col space-y-1">
-                                {logs.map((log, i) => (
-                                    <div key={i} className="whitespace-pre-wrap">{log}</div>
+                {/* Terminal - always mounted, hidden when not active */}
+                <div className={`flex flex-col h-full ${activeTab !== 'TERMINAL' ? 'hidden' : ''}`}>
+                    {/* Terminal Logs */}
+                    <div className="flex-1 p-4 overflow-y-auto font-mono bg-black/30">
+                        <div className="flex flex-col space-y-1">
+                            {logs.map((log, i) => (
+                                <div key={i} className="whitespace-pre-wrap">{log}</div>
+                            ))}
+                        </div>
+
+                        {/* Quick Chips */}
+                        <div className="mt-4 pt-4 border-t border-slate-700/50">
+                            <p className="text-slate-500 text-xs mb-3 uppercase tracking-wide">[ Suggested Commands ]:</p>
+                            <div className="flex flex-wrap gap-2">
+                                {quickChips.map((chip) => (
+                                    <button
+                                        key={chip.command}
+                                        onClick={() => executeCommand(chip.command)}
+                                        className="px-4 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded border border-slate-600 hover:border-orange-400 transition-all duration-200"
+                                    >
+                                        {chip.label}
+                                    </button>
                                 ))}
                             </div>
-
-                            {/* Quick Chips */}
-                            <div className="mt-4 pt-4 border-t border-slate-700/50">
-                                <p className="text-slate-500 text-xs mb-3 uppercase tracking-wide">[ Suggested Commands ]:</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {quickChips.map((chip) => (
-                                        <button
-                                            key={chip.command}
-                                            onClick={() => executeCommand(chip.command)}
-                                            className="px-4 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded border border-slate-600 hover:border-orange-400 transition-all duration-200"
-                                        >
-                                            {chip.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Terminal Input */}
-                        <div className="flex items-center px-4 py-3 bg-[#161b22] border-t border-slate-700">
-                            <span className="text-green-500 mr-2">➜</span>
-                            <span className="text-cyan-400 mr-2">visitor@portfolio:~$</span>
-                            <input
-                                type="text"
-                                className="flex-1 bg-transparent focus:outline-none text-slate-300 font-mono"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                autoFocus
-                                spellCheck={false}
-                                placeholder="Type a command..."
-                            />
                         </div>
                     </div>
-                ) : (
+
+                    {/* Terminal Input */}
+                    <div className="flex items-center px-4 py-3 bg-[#161b22] border-t border-slate-700">
+                        <span className="text-green-500 mr-2">➜</span>
+                        <span className="text-cyan-400 mr-2">visitor@portfolio:~$</span>
+                        <input
+                            type="text"
+                            className="flex-1 bg-transparent focus:outline-none text-slate-300 font-mono"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            autoFocus
+                            spellCheck={false}
+                            placeholder="Type a command..."
+                        />
+                    </div>
+                </div>
+
+                {/* Chat - always mounted, hidden when not active */}
+                <div className={`h-full ${activeTab !== 'CHAT' ? 'hidden' : ''}`}>
                     <ChatComponent />
-                )}
+                </div>
             </div>
         </div>
     );

@@ -6,6 +6,36 @@ import { DefaultChatTransport } from 'ai';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+const RATE_LIMIT = 10; // max messages per hour
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour in ms
+
+// Cookie helpers
+const getCookie = (name: string): string | null => {
+    if (typeof document === 'undefined') return null;
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : null;
+};
+
+const setCookie = (name: string, value: string, maxAge: number = 3600) => {
+    document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+};
+
+// Rate limiting helpers
+const getTimestamps = (): number[] => {
+    const raw = getCookie('chat_timestamps');
+    if (!raw) return [];
+    try {
+        return JSON.parse(raw);
+    } catch {
+        return [];
+    }
+};
+
+const cleanOldTimestamps = (timestamps: number[]): number[] => {
+    const cutoff = Date.now() - RATE_LIMIT_WINDOW;
+    return timestamps.filter(ts => ts > cutoff);
+};
+
 const ChatComponent = () => {
     const { messages, sendMessage, status } = useChat({
         transport: new DefaultChatTransport({
@@ -13,6 +43,7 @@ const ChatComponent = () => {
         }),
     });
     const [input, setInput] = useState('');
+    const [rateLimitError, setRateLimitError] = useState<string | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     // Auto-scroll to bottom when messages change
@@ -30,6 +61,35 @@ const ChatComponent = () => {
             .join('');
     };
 
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!input.trim()) return;
+
+        // Check rate limit
+        let timestamps = cleanOldTimestamps(getTimestamps());
+
+        if (timestamps.length >= RATE_LIMIT) {
+            const oldestTs = Math.min(...timestamps);
+            const waitMs = RATE_LIMIT_WINDOW - (Date.now() - oldestTs);
+            const waitMins = Math.ceil(waitMs / 60000);
+            setRateLimitError(`[ERROR] Rate limit exceeded. You can send ${RATE_LIMIT} messages per hour. Please wait ~${waitMins} minutes.`);
+            return;
+        }
+
+        // Clear any previous error
+        setRateLimitError(null);
+
+        // Add current timestamp and save
+        timestamps.push(Date.now());
+        setCookie('chat_timestamps', JSON.stringify(timestamps), 3600);
+
+        // Send message
+        sendMessage({ text: input });
+        setInput('');
+    };
+
+    const remainingMessages = RATE_LIMIT - cleanOldTimestamps(getTimestamps()).length;
+
     return (
         <div className="flex flex-col h-full text-sm font-mono text-slate-300">
             {/* Messages Area */}
@@ -41,7 +101,8 @@ const ChatComponent = () => {
                     <div className="text-slate-500 italic">
                         [SYSTEM] specialized_agent_loaded --version 1.0<br />
                         [SYSTEM] connection_established<br />
-                        [INFO] Type a message to start interacting...
+                        [INFO] Type a message to start interacting...<br />
+                        [INFO] Rate limit: {RATE_LIMIT} messages/hour
                     </div>
                 )}
 
@@ -93,6 +154,12 @@ const ChatComponent = () => {
                     </div>
                 ))}
 
+                {rateLimitError && (
+                    <div className="text-red-400 font-bold">
+                        {rateLimitError}
+                    </div>
+                )}
+
                 {status === 'streaming' && (
                     <div className="flex items-center text-green-500 animate-pulse">
                         <span className="mr-2">[AI]</span>
@@ -103,13 +170,7 @@ const ChatComponent = () => {
 
             {/* Input Area */}
             <form
-                onSubmit={e => {
-                    e.preventDefault();
-                    if (input.trim()) {
-                        sendMessage({ text: input });
-                        setInput('');
-                    }
-                }}
+                onSubmit={handleSubmit}
                 className="flex items-center px-4 py-3 bg-[#161b22] border-t border-slate-700"
             >
                 <span className="text-green-500 mr-2">➜</span>
@@ -117,7 +178,7 @@ const ChatComponent = () => {
                 <input
                     className="flex-1 bg-transparent focus:outline-none text-slate-300 font-mono placeholder-slate-600"
                     value={input}
-                    placeholder="Say something..."
+                    placeholder={`Say something... (${remainingMessages} left)`}
                     onChange={e => setInput(e.currentTarget.value)}
                     disabled={status !== 'ready'}
                     autoFocus
