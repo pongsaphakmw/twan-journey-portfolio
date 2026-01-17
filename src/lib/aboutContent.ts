@@ -10,7 +10,7 @@ I love building scalable applications, automating infrastructure, and exploring 
 ### 🛠 Tech Stack
 
 #### **Full-stack & AI**
-- **Skins**: Ruby on Rails, Next.js (TypeScript), Spring Boot, Flutter
+- **Skills**: Ruby on Rails, Next.js (TypeScript), Golang, Flutter
 - **AI/LLM**: Gemini API, Vercel AI SDK
 - **Database**: PostgreSQL, Redis, MongoDB
 
@@ -33,7 +33,7 @@ _Apr 2025 - Present_
 
 #### **Data Scheduler Project**
 _Full-stack Developer_
-- Built a data scheduler using **Next.js (SSR)** for frontend and **Python FastAPI** for backend.
+- Built a data scheduler using **Next.js (SSR)** for frontend and **Python Flask** for backend.
 - Managed **Apache Airflow 2.10** to execute Jupyter notebooks for ML models.
 - Deployed on Kubernetes and VMs based on resource requirements.
 
@@ -58,4 +58,5 @@ _Apr 2024 - Oct 2024_
 ### 📫 Contact
 - **GitHub**: [github.com/pongsaphakmw](https://github.com/pongsaphakmw)
 - **Email**: tawanmw@gmail.com
+- **Linkedin**: [linkedin.com/in/twan-phongsaphak](www.linkedin.com/in/twan-phongsaphak)
 `;

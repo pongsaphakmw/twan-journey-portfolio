@@ -21,9 +21,9 @@ const TerminalPanel = ({ isMinimized, onMinimizeChange }: TerminalPanelProps) =>
     const router = useRouter();
 
     const quickChips = [
-        { label: 'Who are you?', command: 'about' },
-        { label: 'Show Projects', command: 'work' },
-        { label: 'How to contact?', command: 'contact' },
+        { label: 'Help', command: 'help' },
+        { label: 'Getting Started', command: 'start' },
+        { label: 'Contact', command: 'contact' },
     ];
 
     const toggleMinimize = () => {

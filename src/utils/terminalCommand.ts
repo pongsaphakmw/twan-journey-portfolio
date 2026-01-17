@@ -17,7 +17,44 @@ export const processCommand = (cmd: string): CommandResult => {
     }
 
     if (command === 'help') {
-        return { output: ['Available commands: help, clear, ls, cd <path>, about, work, contact'] };
+        return {
+            output: [
+                '┌─────────────────────────────────────────────────────────┐',
+                '│  Available Commands                                     │',
+                '├─────────────────────────────────────────────────────────┤',
+                '│  help              Show this help message               │',
+                '│  clear             Clear the terminal screen            │',
+                '│  ls                List all available paths             │',  
+                '│  cd <path>         Navigate to a page (e.g. cd /about)  │',
+                '│  about             Learn about me                       │',
+                '│  projects          View my projects                     │',
+                '│  contact           Get my contact information           │',
+                '│  start             Quick start guide for visitors       │',
+                '│  experiences       View my experiences                  │',
+                '└─────────────────────────────────────────────────────────┘',
+            ]
+        };
+    }
+
+    if (command === 'start' || command === 'getting-started') {
+        return {
+            output: [
+                '',
+                '  🚀 Welcome to my interactive portfolio!',
+                '',
+                '  Quick Navigation:',
+                '    • Type "cd /about" to learn about me',
+                '    • Type "cd /projects" to see my public work',
+                '    • Type "cd /experiences" to view my journey',
+                '    • Type "cd /contact" to get in touch',
+                '',
+                '  Tips:',
+                '    • Use the CHAT tab to ask me anything!',
+                '    • Drag the floating cards on the home page',
+                '    • Type "help" for all available commands',
+                '',
+            ]
+        };
     }
 
     if (command === 'ls') {
@@ -53,8 +90,12 @@ export const processCommand = (cmd: string): CommandResult => {
         return { output: ['  Hello! I am Twan! I am a software developer who passionate to software development and AI applications'] };
     }
 
-    if (command === 'work') {
-        return { output: ['  Check out my projects at /work or type "projects" for a list.'] };
+    if (command === 'projects') {
+        return { output: ['  Check out my projects at /projects by typing "cd /projects"'] };
+    }
+
+    if (command === 'experiences') {
+        return { output: ['  Check out my experiences at /experiences by typing "cd /experiences"'] };
     }
 
     if (command === 'contact') {
