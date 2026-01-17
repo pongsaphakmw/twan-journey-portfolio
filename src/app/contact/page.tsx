@@ -40,9 +40,10 @@ export default function ContactPage() {
 
             setStatus('success');
             setFormData({ name: '', email: '', subject: '', message: '' });
-        } catch (error: any) {
+        } catch (error: unknown) {
             setStatus('error');
-            setErrorMessage(error.message);
+            const message = error instanceof Error ? error.message : 'Something went wrong';
+            setErrorMessage(message);
         }
     };
 
@@ -117,8 +118,8 @@ export default function ContactPage() {
                         type="submit"
                         disabled={status === 'loading' || status === 'success'}
                         className={`w-full flex items-center justify-center gap-2 font-medium py-3 px-4 rounded-lg transition-all duration-300 ${status === 'success'
-                                ? 'bg-green-600 hover:bg-green-700 text-white'
-                                : 'bg-cyan-600 hover:bg-cyan-700 text-white hover:shadow-[0_0_20px_rgba(8,145,178,0.4)]'
+                            ? 'bg-green-600 hover:bg-green-700 text-white'
+                            : 'bg-cyan-600 hover:bg-cyan-700 text-white hover:shadow-[0_0_20px_rgba(8,145,178,0.4)]'
                             } disabled:opacity-70 disabled:cursor-not-allowed`}
                     >
                         {status === 'loading' ? (
@@ -144,7 +145,7 @@ export default function ContactPage() {
                     )}
                     {status === 'success' && (
                         <p className="text-green-400 text-sm mt-3 text-center">
-                            I'll get back to you as soon as possible.
+                            I&apos;ll get back to you as soon as possible.
                         </p>
                     )}
                 </div>

@@ -8,41 +8,6 @@ import PlanetCard from './PlanetCard';
 import Starfield from './Starfield';
 import SpaceDust from './SpaceDust';
 
-const ExperienceTimeline = () => {
-    // This ref attaches to the SCROLLABLE container
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    // We track the scroll progress of THIS container
-    const { scrollYProgress } = useScroll({
-        container: containerRef,
-        offset: ["start start", "end end"]
-    });
-
-    return (
-        // The scroll container. Replaces 'min-h-screen' with 'h-full' to fit in layout. 
-        // 'sticky' children will stick to this container's viewport.
-        <div
-            ref={containerRef}
-            className="relative w-full h-full bg-[#050b14] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
-        >
-            {/* Background Layer - Sticky to stay in view */}
-            <div className="sticky top-0 left-0 w-full h-full pointer-events-none z-0">
-                <Starfield />
-                <SpaceDust />
-            </div>
-
-            {/* Rocket Layer - Sticky to stay in view */}
-            <div className="sticky top-0 left-0 w-full h-full pointer-events-none z-30 flex justify-center">
-                <div className="relative w-full max-w-7xl h-full">
-                    <Rocket scrollYProgress={scrollYProgress} />
-                </div>
-            </div>
-            <div className="relative z-10 w-full -mt-[200vh]"></div>
-
-        </div>
-    );
-};
-
 // Re-write to use Grid for cleaner stacking context of scroll vs sticky
 const ExperienceTimelineGrid = () => {
     const containerRef = useRef<HTMLDivElement>(null);

@@ -1,6 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+
+interface MessagePart {
+    type: string;
+    text?: string;
+}
+
+interface ChatMessage {
+    id: string;
+    role: 'user' | 'assistant' | 'system';
+    parts: MessagePart[];
+}
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import ReactMarkdown from 'react-markdown';
@@ -54,7 +65,7 @@ const ChatComponent = () => {
     }, [messages]);
 
     // Helper function to get text content from message parts
-    const getMessageText = (parts: any[]): string => {
+    const getMessageText = (parts: MessagePart[]): string => {
         return parts
             .filter(part => part.type === 'text')
             .map(part => part.text)
@@ -106,7 +117,7 @@ const ChatComponent = () => {
                     </div>
                 )}
 
-                {messages.map((m: any) => (
+                {messages.map((m: ChatMessage) => (
                     <div key={m.id} className="flex flex-col space-y-1">
                         <div className="flex items-start">
                             {m.role === 'user' ? (
@@ -123,7 +134,7 @@ const ChatComponent = () => {
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm]}
                                         components={{
-                                            code({ node, className, children, ...props }) {
+                                            code({ className, children, ...props }) {
                                                 const match = /language-(\w+)/.exec(className || '')
                                                 return match ? (
                                                     <div className="my-2 rounded overflow-hidden border border-slate-700 bg-[#0d1117]">
