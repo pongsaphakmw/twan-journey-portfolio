@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import TerminalPanel from "@/components/TerminalPanel";
 import TopNav from "@/components/TopNav";
+import MainLayout from "@/components/MainLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,16 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full flex flex-col`}
       >
         <TopNav />
-
-        {/* Main Canvas Area - 65% height */}
-        <main className="h-[65%] w-full overflow-auto relative border-b border-slate-700 pt-14">
-          {children}
-        </main>
-
-        {/* Terminal Panel Area - 35% height */}
-        <footer className="h-[35%] w-full relative z-50 bg-[#0d1117] border-t border-slate-700">
-          <TerminalPanel />
-        </footer>
+        <MainLayout>{children}</MainLayout>
       </body>
     </html>
   );

@@ -16,7 +16,7 @@ const TopNav = () => {
                 <span className="text-slate-500"> /&gt;</span>
             </Link>
 
-            {/* Navigation Links */}
+            {/* Navigation Links
             <ul className="flex space-x-8 font-mono text-sm">
                 {links.map((link) => (
                     <li key={link.name}>
@@ -28,7 +28,7 @@ const TopNav = () => {
                         </Link>
                     </li>
                 ))}
-            </ul>
+            </ul> */}
         </nav>
     );
 };

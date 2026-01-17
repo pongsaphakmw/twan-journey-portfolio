@@ -37,28 +37,7 @@ const ExperienceTimeline = () => {
                     <Rocket scrollYProgress={scrollYProgress} />
                 </div>
             </div>
-
-            {/* Scrollable Content */}
-            {/* We need to push content down a bit so it doesn't start under the header immediately if there was one, 
-                but here we just flow naturally.
-                Note: Since we have sticky layers covering the usage area above, we place content *relative* 
-                and ensure z-index puts it in right place.
-                The visual content needs to "scroll" past the sticky viewport.
-            */}
-            <div className="relative z-10 w-full -mt-[200vh]">
-                {/* 
-                   Hack/Trick: The sticky containers take up height in the flow? 
-                   If top:0 and h-full, they take up 100% height EACH if position isn't handled?
-                   'sticky' acts like relative until scrolled. 
-                   We want them to overlap. 
-                   Better approach: Grid stacking.
-                */}
-            </div>
-
-            {/* 
-                Let's use a Grid approach for correct stacking without negative margins hacks which break easily.
-                Grid area: 1 / 1 / -1 / -1
-            */}
+            <div className="relative z-10 w-full -mt-[200vh]"></div>
 
         </div>
     );

@@ -66,7 +66,7 @@ const ChatComponent = () => {
         if (!input.trim()) return;
 
         // Check rate limit
-        let timestamps = cleanOldTimestamps(getTimestamps());
+        const timestamps = cleanOldTimestamps(getTimestamps());
 
         if (timestamps.length >= RATE_LIMIT) {
             const oldestTs = Math.min(...timestamps);

@@ -9,7 +9,7 @@ import { FileCode, FileJson, FileText, FileType2 } from 'lucide-react';
 const NODES_CONFIG = [
     { id: 'about', label: 'ABOUT_ME.MD', subLabel: 'My Journey', icon: FileText, color: 'text-blue-400', width: 220, height: 100 },
     { id: 'projects', label: 'PROJECTS.JSON', subLabel: 'Recent Work', icon: FileJson, color: 'text-yellow-400', width: 220, height: 100 },
-    { id: 'experiences', label: 'EXPERIENCES.MD', subLabel: 'Skills & Tools', icon: FileCode, color: 'text-purple-400', width: 200, height: 100 },
+    { id: 'experiences', label: 'EXPERIENCES.EXE', subLabel: 'Skills & Tools', icon: FileCode, color: 'text-purple-400', width: 200, height: 100 },
     { id: 'contact', label: 'CONTACT.TXT', subLabel: 'Get in Touch', icon: FileType2, color: 'text-green-400', width: 200, height: 100 },
 ];
 
@@ -30,7 +30,6 @@ export default function PhysicsSpace() {
         const sceneElement = sceneRef.current;
         if (!sceneElement) return;
 
-        // 1. Setup Matter.js Engine
         const engine = Matter.Engine.create();
         engine.gravity.y = 0; // Zero gravity
         engineRef.current = engine;
@@ -47,7 +46,6 @@ export default function PhysicsSpace() {
             },
         });
 
-        // 2. Create Bodies (Nodes)
         const centerX = sceneElement.clientWidth / 2;
         const centerY = sceneElement.clientHeight / 2;
 
@@ -59,26 +57,22 @@ export default function PhysicsSpace() {
                 label: config.id,
                 chamfer: { radius: 10 },
                 restitution: 0.9,
-                frictionAir: 0.001, // Reduced friction for better floating
+                frictionAir: 0.001,
                 density: 0.001,
             });
 
-            // Add initial random velocity
             Matter.Body.setVelocity(body, {
                 x: (Math.random() - 0.5) * 2,
                 y: (Math.random() - 0.5) * 2,
             });
 
-            // Add initial random rotation
             Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.02);
 
             return body;
         });
 
-        // 3. Create Walls (and handle resize)
         let walls: Matter.Body[] = [];
         const createWalls = () => {
-            // Remove existing walls if needed
             if (walls.length > 0) {
                 Matter.World.remove(engine.world, walls);
             }
@@ -100,19 +94,13 @@ export default function PhysicsSpace() {
         createWalls();
         Matter.World.add(engine.world, bodies);
 
-        // Resize Handler
         const handleResize = () => {
-            // Update canvas size
             render.canvas.width = sceneElement.clientWidth;
             render.canvas.height = sceneElement.clientHeight;
-            // Re-create walls
             createWalls();
         };
         window.addEventListener('resize', handleResize);
 
-
-        // 4. Mouse Interaction
-        // Attach to the container (sceneRef.current) to ensure events are captured even over React nodes
         const mouse = Matter.Mouse.create(sceneElement);
         const mouseConstraint = Matter.MouseConstraint.create(engine, {
             mouse: mouse,
@@ -123,15 +111,10 @@ export default function PhysicsSpace() {
         });
         Matter.World.add(engine.world, mouseConstraint);
 
-        // Keep the mouse in sync with rendering
         render.mouse = mouse;
 
-        // 5. Run the engine
         const runner = Matter.Runner.create();
         Matter.Runner.run(runner, engine);
-        // Matter.Render.run(render); 
-
-        // Add gentle continuous force (floating effect)
         Matter.Events.on(engine, 'beforeUpdate', () => {
             bodies.forEach(body => {
                 // Apply tiny random force
@@ -142,10 +125,8 @@ export default function PhysicsSpace() {
             });
         });
 
-        // 6. Sync Loop (Physics -> React State)
         let animationFrameId: number;
         const updateReactState = () => {
-            // Only update if engine exists
             const newNodesState = bodies.map((body) => ({
                 id: body.label,
                 x: body.position.x,
@@ -157,7 +138,6 @@ export default function PhysicsSpace() {
         };
         updateReactState();
 
-        // Cleanup
         return () => {
             window.removeEventListener('resize', handleResize);
             Matter.Render.stop(render);
